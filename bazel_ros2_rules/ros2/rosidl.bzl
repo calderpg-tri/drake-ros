@@ -512,6 +512,9 @@ def rosidl_c_library(
             "{}/{}/detail/{}__type_support.h".format(root, parent, basename),
         )
         generated_c_sources.append(
+            "{}/{}/detail/{}__description.c".format(root, parent, basename),
+        )
+        generated_c_sources.append(
             "{}/{}/detail/{}__functions.c".format(root, parent, basename),
         )
     generated_sources = generated_c_sources + generated_c_headers
@@ -1240,6 +1243,16 @@ def rosidl_cc_support(
 
     Additional keyword arguments are those common to all rules.
     """
+    rosidl_c_library(
+        name = _make_private_name(name, "__rosidl_c"),
+        group = group or name,
+        interfaces = interfaces,
+        includes = [_make_public_label(dep, "_defs") for dep in deps],
+        deps = [_make_public_label(dep, "_c") for dep in deps],
+        cc_library_rule = cc_library_rule,
+        **kwargs
+    )
+
     rosidl_cc_library(
         name = _make_private_name(name, "__rosidl_cpp"),
         group = group or name,
@@ -1265,7 +1278,10 @@ def rosidl_cc_support(
             group = group or name,
             interfaces = interfaces,
             includes = [_make_public_label(dep, "_defs") for dep in deps],
-            deps = [_make_private_label(name, "__rosidl_cpp")] + [
+            deps = [
+                _make_private_label(name, "__rosidl_c"),
+                _make_private_label(name, "__rosidl_cpp"),
+            ] + [
                 _make_public_label(dep, "_cc")
                 for dep in deps
             ],
@@ -1299,7 +1315,10 @@ def rosidl_cc_support(
             group = group or name,
             interfaces = interfaces,
             includes = [_make_public_label(dep, "_defs") for dep in deps],
-            deps = [_make_private_label(name, "__rosidl_cpp")] + [
+            deps = [
+                _make_private_label(name, "__rosidl_c"),
+                _make_private_label(name, "__rosidl_cpp"),
+            ] + [
                 _make_public_label(dep, "_cc")
                 for dep in deps
             ],
@@ -1330,7 +1349,10 @@ def rosidl_cc_support(
         group = group or name,
         interfaces = interfaces,
         includes = [_make_public_label(dep, "_defs") for dep in deps],
-        deps = [_make_private_label(name, "__rosidl_cpp")] + [
+        deps = [
+            _make_private_label(name, "__rosidl_c"),
+            _make_private_label(name, "__rosidl_cpp"),
+        ] + [
             _make_public_label(dep, "_cc")
             for dep in deps
         ],
@@ -1358,7 +1380,10 @@ def rosidl_cc_support(
             _make_public_label(name, "__rosidl_typesupport_cpp"),
         ] + typesupports.values(),
         data = data,
-        deps = [_make_private_label(name, "__rosidl_cpp")],
+        deps = [
+            _make_private_label(name, "__rosidl_c"),
+            _make_private_label(name, "__rosidl_cpp"),
+        ],
         linkstatic = True,
         **kwargs
     )
@@ -1392,15 +1417,15 @@ def rosidl_py_support(
 
     Additional keyword arguments are those common to all rules.
     """
-    rosidl_c_library(
-        name = _make_private_name(name, "__rosidl_c"),
-        group = group or name,
-        interfaces = interfaces,
-        includes = [_make_public_label(dep, "_defs") for dep in deps],
-        deps = [_make_public_label(dep, "_c") for dep in deps],
-        cc_library_rule = cc_library_rule,
-        **kwargs
-    )
+#    rosidl_c_library(
+#        name = _make_private_name(name, "__rosidl_c"),
+#        group = group or name,
+#        interfaces = interfaces,
+#        includes = [_make_public_label(dep, "_defs") for dep in deps],
+#        deps = [_make_public_label(dep, "_c") for dep in deps],
+#        cc_library_rule = cc_library_rule,
+#        **kwargs
+#    )
 
     data = list(data)
     typesupports = {}
